@@ -43,6 +43,29 @@ describe Fluent::JabberOutput do
     its(:room) { should == 'the_room@conference.example.com' }
   end
 
+  context 'configureing(with jid/password)' do
+    before :each do
+      config_hash = default_config.merge(jid: 'jabber@example.com', password: 'pa55w0rd')
+      config_hash.delete :pit_id
+      config = create_fluent_config(config_hash)
+
+      subject.configure(config)
+    end
+
+    its(:jid) { should == 'jabber@example.com' }
+    its(:password) { should == 'pa55w0rd' }
+    its(:room) { should == 'the_room@conference.example.com' }
+  end
+
+  context 'config contains jid and pit_id' do
+    it 'should error' do
+      config_hash = default_config.merge(jid: 'jabber@example.com', password: 'pa55w0rd')
+      config = create_fluent_config(config_hash)
+
+      expect { subject.configure config }.to raise_error Fluent::ConfigError
+    end
+  end
+
   context 'connecting' do
     it 'should connect with configured parameters' do
       Pit.stub(:get).with('jabber', anything).and_return('jid' => 'jabber@example.com', 'password' => 'pa55w0rd')

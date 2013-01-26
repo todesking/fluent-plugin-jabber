@@ -10,7 +10,9 @@ require 'pit'
 class Fluent::JabberOutput < Fluent::Output
   Fluent::Plugin.register_output('jabber', self)
 
-  config_param :pit_id, :string
+  config_param :pit_id, :string, default: nil
+  config_param :jid, :string, default: nil
+  config_param :password, :string, default: nil
 
   # Currently, output target is group chat only.
   config_param :room, :string
@@ -23,12 +25,16 @@ class Fluent::JabberOutput < Fluent::Output
   def configure(conf)
     super
 
-    user_info = Pit.get(@pit_id, require: {
-      'jid' => 'jid',
-      'password' => 'password',
-    })
-    @jid = user_info['jid']
-    @password = user_info['password']
+    raise Fluent::ConfigError, "jid/password and pit_id is exclusive!!" if (@jid || @password) && @pit_id
+
+    if @pit_id
+      user_info = Pit.get(@pit_id, require: {
+        'jid' => 'jid',
+        'password' => 'password',
+      })
+      @jid = user_info['jid']
+      @password = user_info['password']
+    end
   end
 
   def start
