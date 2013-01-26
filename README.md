@@ -54,6 +54,7 @@ If 'body' field not set, the plugin raises error.
 * Updated Gemfile
 * Change file location to fluent plugin standard.
 * Add format option
+* Add test
 
 ### 0.0.1
 
