@@ -1,6 +1,6 @@
 Gem::Specification.new do |gem|
   gem.name          = "fluent-plugin-jabber"
-  gem.version       = "0.0.2"
+  gem.version       = "0.1.0"
   gem.authors       = ["todesking"]
   gem.email         = ["discommunicative@gmail.com"]
   gem.summary       = %q{Fluentd output plugin for XMPP(Jabber) protocol}
