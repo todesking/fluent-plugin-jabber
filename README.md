@@ -49,10 +49,11 @@ If 'body' field not set, the plugin raises error.
 
 ## Changes
 
-### 0.0.2(unreleased)
+### 0.1.0(unreleased)
 
 * Updated Gemfile
 * Change file location to fluent plugin standard.
+* Add format option
 
 ### 0.0.1
 

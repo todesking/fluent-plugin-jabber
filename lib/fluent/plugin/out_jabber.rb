@@ -15,6 +15,8 @@ class Fluent::JabberOutput < Fluent::Output
   # Currently, output target is group chat only.
   config_param :room, :string
 
+  config_param :format, :string
+
   def configure(conf)
     super
   end
@@ -42,13 +44,14 @@ class Fluent::JabberOutput < Fluent::Output
 
   def emit(tag, es, chain)
     es.each do|time, record|
-      @muc_client.send create_message(time, record)
+      message = create_message(time, record)
+      @muc_client.send message
     end
     chain.next
   end
 
   def create_message(time, record)
-    raise "record['body'] is empty" unless record['body']
-    Jabber::Message.new(@room, record['body'])
+    message = @format.gsub(/\\n/, "\n").gsub(/\${([\w.]+)}/) { $1.split('.').inject(record) {|r,k| (r||{})[k]} }
+    Jabber::Message.new(@room, message)
   end
 end
