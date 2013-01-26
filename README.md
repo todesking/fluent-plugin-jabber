@@ -29,6 +29,10 @@ See source for details.
       # Need 'jid' and 'password' field.
       pit_id jabber
 
+      # Or, put JID/password directly(exclusive for pit_id)
+      jid name@example.com
+      password pa55w0rd
+
       # Output target JID. Currently multi user chat only.
       room test@conference.localhost/test
     </match>
@@ -55,6 +59,7 @@ If 'body' field not set, the plugin raises error.
 * Change file location to fluent plugin standard.
 * Add format option
 * Add test
+* Add jid/password option
 
 ### 0.0.1
 
