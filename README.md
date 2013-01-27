@@ -53,7 +53,7 @@ If 'body' field not set, the plugin raises error.
 
 ## Changes
 
-### 0.1.0(unreleased)
+### 0.1.0
 
 * Add license
 * Updated Gemfile
