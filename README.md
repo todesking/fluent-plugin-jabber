@@ -35,6 +35,8 @@ See source for details.
 
       # Output target JID. Currently multi user chat only.
       room test@conference.localhost/test
+
+      format Hello!\n${user.name} # ${user.name} replaced with record['user']['name']
     </match>
 
 ### Message format
