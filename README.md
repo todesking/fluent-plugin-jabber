@@ -34,7 +34,11 @@ See source for details.
       password pa55w0rd
 
       # Output target JID. Currently multi user chat only.
-      room test@conference.localhost/test
+      #
+      # NOTE: Group chat could'nt accept nickname that already in used.
+      # It cause "conflict: That nickname is registered by another person" error.
+      # To prevent it, specify unique nickname per plugin definition.
+      room test@conference.localhost/unique_nickname
 
       format Hello!\n${user.name} # ${user.name} replaced with record['user']['name']
 
@@ -59,7 +63,7 @@ If 'body' field not set, the plugin raises error.
 
 ## Changes
 
-### 0.1.1(unreleased)
+### 0.1.1
 
 * Fix Encoding::CompatibilityError while parsing XMPP messages caused by default_internal is ASCII_8BIT.
 * add jabber_debug_log and jabber_warnings_log options.
