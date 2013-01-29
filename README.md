@@ -55,6 +55,10 @@ If 'body' field not set, the plugin raises error.
 
 ## Changes
 
+### 0.1.1(unreleased)
+
+* Fix Encoding::CompatibilityError while parsing XMPP messages caused by default_internal is ASCII_8BIT.
+
 ### 0.1.0
 
 * Add license

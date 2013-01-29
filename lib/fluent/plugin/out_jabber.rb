@@ -7,6 +7,16 @@ require 'xmpp4r/muc'
 
 require 'pit'
 
+# Deal with Fluentd's Encoding.default_internal = 'ASCII_8BIT'.
+class ::REXML::IOSource
+  alias orig_readline readline
+  def readline(*args)
+    line = orig_readline(*args)
+    line = line.force_encoding(::Encoding::UTF_8) if line.encoding == ::Encoding::ASCII_8BIT
+    line
+  end
+end
+
 class Fluent::JabberOutput < Fluent::Output
   Fluent::Plugin.register_output('jabber', self)
 
