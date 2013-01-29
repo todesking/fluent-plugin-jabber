@@ -29,6 +29,11 @@ class Fluent::JabberOutput < Fluent::Output
 
   config_param :format, :string
 
+  # Enable error/warning logs of XMPP4R
+  # This configuration is global
+  config_param :jabber_debug_log, :bool, default: false
+  config_param :jabber_warnings_log, :bool, default: false
+
   attr_reader :jid
   attr_reader :password
 
@@ -45,6 +50,9 @@ class Fluent::JabberOutput < Fluent::Output
       @jid = user_info['jid']
       @password = user_info['password']
     end
+
+    Jabber.debug = true if jabber_debug_log
+    Jabber.warnings = true if jabber_warnings_log
   end
 
   def start

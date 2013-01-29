@@ -37,6 +37,10 @@ See source for details.
       room test@conference.localhost/test
 
       format Hello!\n${user.name} # ${user.name} replaced with record['user']['name']
+
+      # Enable detailed log of XMPP4R
+      jabber_debug_log true
+      jabber_warnings_log true
     </match>
 
 ### Message format
@@ -58,6 +62,7 @@ If 'body' field not set, the plugin raises error.
 ### 0.1.1(unreleased)
 
 * Fix Encoding::CompatibilityError while parsing XMPP messages caused by default_internal is ASCII_8BIT.
+* add jabber_debug_log and jabber_warnings_log options.
 
 ### 0.1.0
 
