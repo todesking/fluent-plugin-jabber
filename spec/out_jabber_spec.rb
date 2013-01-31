@@ -131,6 +131,17 @@ describe Fluent::JabberOutput do
         subject.emit('tag', [[0, {'a'=>1, 'x'=>{'y'=>2}}], [1, {'a'=>1}]], chain)
       end
     end
+
+    context 'special notations' do
+      let(:format) { 'a\n\{sharp}' }
+
+      it 'should handle some special notations' do
+        subject.should_receive(:send_message).with("a\n#")
+        chain.should_receive(:next).once
+
+        subject.emit('tag', [[0, {}]], chain)
+      end
+    end
   end
 
   context 'xhtml_format' do

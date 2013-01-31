@@ -90,7 +90,7 @@ class Fluent::JabberOutput < Fluent::Output
     format = @format || @xhtml_format
     need_escape = !plain_format?
 
-    format.gsub(/\\n/, "\n").gsub(/\${([\w.]+)}/) {
+    format.gsub(/\\n/, "\n").gsub(/\\{sharp}/,'#').gsub(/\${([\w.]+)}/) {
       data = $1.split('.').inject(record) {|r,k| (r||{})[k]}
       data = escape_xhtml(data) if need_escape
       data
