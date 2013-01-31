@@ -132,4 +132,24 @@ describe Fluent::JabberOutput do
       end
     end
   end
+
+  context 'xhtml_format' do
+    let(:xhtml_format) { '<p>${message}</p>' }
+    before :each do
+      config_hash = default_config.merge(xhtml_format: xhtml_format)
+      config_hash.delete(:format)
+      config = create_fluent_config(config_hash)
+
+      Pit.stub(:get).with('jabber', anything).and_return('jid' => 'jabber@example.com', 'password' => 'pa55w0rd')
+
+      subject.configure(config)
+    end
+
+    it 'should send xml-escaped record data to jabber' do
+      subject.should_receive(:send_message).with('<p>&gt;&lt;</p>')
+      chain.should_receive(:next).once
+
+      subject.emit('tag', [[0, {'message' => '><'}]], chain)
+    end
+  end
 end

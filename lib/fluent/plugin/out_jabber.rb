@@ -71,22 +71,65 @@ class Fluent::JabberOutput < Fluent::Output
     $log.info("out_jabber plugin initialized(jid: #{self.jid}, room: #{self.room})")
   end
 
+  def plain_format?
+    !!@format
+  end
+
   def shutdown
     @client.close
   end
 
   def emit(tag, es, chain)
     es.each do|time, record|
-      send_message create_message(time, record)
+      send_message format_message(time, record)
     end
     chain.next
   end
 
-  def create_message(time, record)
-    message = @format.gsub(/\\n/, "\n").gsub(/\${([\w.]+)}/) { $1.split('.').inject(record) {|r,k| (r||{})[k]} }
+  def format_message(time, record)
+    format = @format || @xhtml_format
+    need_escape = !plain_format?
+
+    format.gsub(/\\n/, "\n").gsub(/\${([\w.]+)}/) {
+      data = $1.split('.').inject(record) {|r,k| (r||{})[k]}
+      data = escape_xhtml(data) if need_escape
+      data
+    }
+  end
+
+  def escape_xhtml(data)
+    REXML::Text.new(data.to_s, true, nil, false).to_s
   end
 
   def send_message(message)
-    @muc_client.send Jabber::Message.new(@room, message)
+    if plain_format?
+      @muc_client.send Jabber::Message.new(@room, message)
+    else
+      # http://devblog.famundo.com/articles/2006/10/18/ruby-and-xmpp-jabber-part-3-adding-html-to-the-messages
+      m = Jabber::Message.new(@room, "(Sorry, your client doesn't support XHTML message)")
+
+      # Create the html part
+      h = REXML::Element::new("html")
+      h.add_namespace('http://jabber.org/protocol/xhtml-im')
+
+      # The body part with the correct namespace
+      b = REXML::Element::new("body")
+      b.add_namespace('http://www.w3.org/1999/xhtml')
+
+      # This suggested method not works for me:
+      #   REXML::Text.new( message, false, nil, true, nil, %r/.^/ )
+      # So I try alternative.
+      REXML::Document.new(message).children.each do|c|
+        b.add c
+      end
+
+      h.add(b)
+
+      # Add the html element to the message
+      m.add_element(h)
+
+      # send
+      @muc_client.send m
+    end
   end
 end
