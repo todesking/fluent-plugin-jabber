@@ -66,6 +66,24 @@ describe Fluent::JabberOutput do
     end
   end
 
+  context 'config contains both xhtml_format and format' do
+    it 'should raise ConfigError' do
+      config_hash = default_config.merge(format: 'xxx', xhtml_format: 'yyy')
+      config = create_fluent_config(config_hash)
+
+      expect { subject.configure config }.to raise_error Fluent::ConfigError
+    end
+  end
+
+  context 'config not contains xhtml_format and format' do
+    it 'should raise ConfigError' do
+      config_hash = default_config.reject{|k,v| [:format, :xhtml_format].include? k}
+      config = create_fluent_config(config_hash)
+
+      expect { subject.configure config }.to raise_error Fluent::ConfigError
+    end
+  end
+
   context 'connecting' do
     it 'should connect with configured parameters' do
       Pit.stub(:get).with('jabber', anything).and_return('jid' => 'jabber@example.com', 'password' => 'pa55w0rd')

@@ -27,7 +27,9 @@ class Fluent::JabberOutput < Fluent::Output
   # Currently, output target is group chat only.
   config_param :room, :string
 
-  config_param :format, :string
+  # Plain text/XHTML format. These options are exclusive.
+  config_param :format, :string, default: nil
+  config_param :xhtml_format, :string, default: nil
 
   # Enable error/warning logs of XMPP4R
   # This configuration is global
@@ -41,6 +43,8 @@ class Fluent::JabberOutput < Fluent::Output
     super
 
     raise Fluent::ConfigError, "jid/password and pit_id is exclusive!!" if (@jid || @password) && @pit_id
+    raise Fluent::ConfigError, "format and xhtml_format is exclusive!!" if @format && @xhtml_format
+    raise Fluent::ConfigError, "format or xhtml_format is required" unless @format || @xhtml_format
 
     if @pit_id
       user_info = Pit.get(@pit_id, require: {
