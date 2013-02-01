@@ -68,6 +68,11 @@ If 'body' field not set, the plugin raises error.
 
 ## Changes
 
+### 0.3.0(unreleased)
+
+* Fix xhtml message building
+* Add filter: br
+
 ### 0.2.0
 
 * Add xhtml_format option
