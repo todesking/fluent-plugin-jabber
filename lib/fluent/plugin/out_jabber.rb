@@ -28,7 +28,7 @@ class Fluent::JabberOutput < Fluent::Output
   config_param :room, :string
 
   # Plain text/XHTML format. These options are exclusive.
-  config_param :format, :string, default: nil
+  config_param :format, :string
   config_param :xhtml_format, :string, default: nil
 
   # Enable error/warning logs of XMPP4R
@@ -43,8 +43,6 @@ class Fluent::JabberOutput < Fluent::Output
     super
 
     raise Fluent::ConfigError, "jid/password and pit_id is exclusive!!" if (@jid || @password) && @pit_id
-    raise Fluent::ConfigError, "format and xhtml_format is exclusive!!" if @format && @xhtml_format
-    raise Fluent::ConfigError, "format or xhtml_format is required" unless @format || @xhtml_format
 
     if @pit_id
       user_info = Pit.get(@pit_id, require: {
@@ -71,26 +69,28 @@ class Fluent::JabberOutput < Fluent::Output
     $log.info("out_jabber plugin initialized(jid: #{self.jid}, room: #{self.room})")
   end
 
-  def plain_format?
-    !!@format
-  end
-
   def shutdown
     @client.close
   end
 
   def emit(tag, es, chain)
     es.each do|time, record|
-      send_message format_message(time, record)
+      send_message plain_text_format(time, record), xhtml_format(time, record)
     end
     chain.next
   end
 
-  def format_message(time, record)
-    format = @format || @xhtml_format
-    need_escape = !plain_format?
+  def plain_text_format(time, record)
+    format_with(@format, time, record, false)
+  end
 
-    format.gsub(/\\n/, "\n").gsub(/\\{sharp}/,'#').gsub(/\${([\w.]+)}/) {
+  def xhtml_format(time, record)
+    format_with(@xhtml_format, time, record, true)
+  end
+
+  def format_with(format_string, time, record, need_escape)
+    return nil unless format_string
+    format_string.gsub(/\\n/, "\n").gsub(/\\{sharp}/,'#').gsub(/\${([\w.]+)}/) {
       data = $1.split('.').inject(record) {|r,k| (r||{})[k]}
       data = escape_xhtml(data) if need_escape
       data
@@ -101,35 +101,33 @@ class Fluent::JabberOutput < Fluent::Output
     REXML::Text.new(data.to_s, true, nil, false).to_s
   end
 
-  def send_message(message)
-    if plain_format?
-      @muc_client.send Jabber::Message.new(@room, message)
-    else
-      # http://devblog.famundo.com/articles/2006/10/18/ruby-and-xmpp-jabber-part-3-adding-html-to-the-messages
-      m = Jabber::Message.new(@room, "(Sorry, your client doesn't support XHTML message)")
+  def send_message(plain_text, xhtml_text)
+    message = Jabber::Message.new(@room, plain_text)
+    set_xhtml_message(message, xhtml_text) if xhtml_text
 
-      # Create the html part
-      h = REXML::Element::new("html")
-      h.add_namespace('http://jabber.org/protocol/xhtml-im')
+    @muc_client.send message
+  end
 
-      # The body part with the correct namespace
-      b = REXML::Element::new("body")
-      b.add_namespace('http://www.w3.org/1999/xhtml')
+  def set_xhtml_message(message, xhtml_text)
+    # http://devblog.famundo.com/articles/2006/10/18/ruby-and-xmpp-jabber-part-3-adding-html-to-the-messages
+    # Create the html part
+    h = REXML::Element::new("html")
+    h.add_namespace('http://jabber.org/protocol/xhtml-im')
 
-      # This suggested method not works for me:
-      #   REXML::Text.new( message, false, nil, true, nil, %r/.^/ )
-      # So I try alternative.
-      REXML::Document.new(message).children.each do|c|
-        b.add c
-      end
+    # The body part with the correct namespace
+    b = REXML::Element::new("body")
+    b.add_namespace('http://www.w3.org/1999/xhtml')
 
-      h.add(b)
-
-      # Add the html element to the message
-      m.add_element(h)
-
-      # send
-      @muc_client.send m
+    # This suggested method not works for me:
+    #   REXML::Text.new( message, false, nil, true, nil, %r/.^/ )
+    # So I try alternative.
+    REXML::Document.new(xhtml_text).children.each do|c|
+      b.add c
     end
+
+    h.add(b)
+
+    # Add the html element to the message
+    message.add_element(h)
   end
 end

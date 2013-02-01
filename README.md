@@ -40,7 +40,12 @@ See source for details.
       # To prevent it, specify unique nickname per plugin definition.
       room test@conference.localhost/unique_nickname
 
+      # Required, plain text message format.
       format Hello!\n${user.name} # ${user.name} replaced with record['user']['name']
+
+	  # Optional, XHTML message format.
+      # NOTE: Use '\{sharp}' instead of '#' due to fluentd treat '#' to 'Begin of comment'
+	  xhtml_format <span style="color:\{sharp}FF0000">Hello!<strong>${user.name}</strong></span>
 
       # Enable detailed log of XMPP4R
       jabber_debug_log true

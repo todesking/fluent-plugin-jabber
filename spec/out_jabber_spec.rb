@@ -66,18 +66,9 @@ describe Fluent::JabberOutput do
     end
   end
 
-  context 'config contains both xhtml_format and format' do
+  context 'config not contains format' do
     it 'should raise ConfigError' do
-      config_hash = default_config.merge(format: 'xxx', xhtml_format: 'yyy')
-      config = create_fluent_config(config_hash)
-
-      expect { subject.configure config }.to raise_error Fluent::ConfigError
-    end
-  end
-
-  context 'config not contains xhtml_format and format' do
-    it 'should raise ConfigError' do
-      config_hash = default_config.reject{|k,v| [:format, :xhtml_format].include? k}
+      config_hash = default_config.reject{|k,v| [:format].include? k}
       config = create_fluent_config(config_hash)
 
       expect { subject.configure config }.to raise_error Fluent::ConfigError
@@ -114,7 +105,7 @@ describe Fluent::JabberOutput do
     end
 
     it 'should send message to jabber conference room' do
-      subject.should_receive(:send_message).with('hello!').twice
+      subject.should_receive(:send_message).with('hello!', nil).twice
       chain.should_receive(:next).once
 
       subject.emit('tag', [[0, {}], [1, {'a'=>'b'}]], chain)
@@ -124,8 +115,8 @@ describe Fluent::JabberOutput do
       let(:format) { 'a=${a}, x.y=${x.y}' }
 
       it 'should format message with received record' do
-        subject.should_receive(:send_message).with('a=1, x.y=2').ordered
-        subject.should_receive(:send_message).with('a=1, x.y=').ordered
+        subject.should_receive(:send_message).with('a=1, x.y=2', nil).ordered
+        subject.should_receive(:send_message).with('a=1, x.y=', nil).ordered
         chain.should_receive(:next).once
 
         subject.emit('tag', [[0, {'a'=>1, 'x'=>{'y'=>2}}], [1, {'a'=>1}]], chain)
@@ -136,7 +127,7 @@ describe Fluent::JabberOutput do
       let(:format) { 'a\n\{sharp}' }
 
       it 'should handle some special notations' do
-        subject.should_receive(:send_message).with("a\n#")
+        subject.should_receive(:send_message).with("a\n#", nil)
         chain.should_receive(:next).once
 
         subject.emit('tag', [[0, {}]], chain)
@@ -146,9 +137,12 @@ describe Fluent::JabberOutput do
 
   context 'xhtml_format' do
     let(:xhtml_format) { '<p>${message}</p>' }
+    let(:format) { '${message}' }
     before :each do
-      config_hash = default_config.merge(xhtml_format: xhtml_format)
-      config_hash.delete(:format)
+      config_hash = default_config.merge(
+        xhtml_format: xhtml_format,
+        format: format,
+      )
       config = create_fluent_config(config_hash)
 
       Pit.stub(:get).with('jabber', anything).and_return('jid' => 'jabber@example.com', 'password' => 'pa55w0rd')
@@ -157,7 +151,7 @@ describe Fluent::JabberOutput do
     end
 
     it 'should send xml-escaped record data to jabber' do
-      subject.should_receive(:send_message).with('<p>&gt;&lt;</p>')
+      subject.should_receive(:send_message).with('><', '<p>&gt;&lt;</p>')
       chain.should_receive(:next).once
 
       subject.emit('tag', [[0, {'message' => '><'}]], chain)
