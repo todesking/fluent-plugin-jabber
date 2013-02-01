@@ -140,6 +140,9 @@ describe Fluent::JabberOutput do
       it 'should convert CR to <br />' do
         subject.format_with('${a|br}', 0, {'a'=>"a\nb"}, false).should == "a<br />b"
       end
+      it 'should convert CR to <br />, after xhtml_escape' do
+        subject.format_with('${a|br}', 0, {'a'=>"<>\n"}, false).should == "&lt;&gt;<br />"
+      end
     end
   end
 

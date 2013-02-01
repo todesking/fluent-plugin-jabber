@@ -95,13 +95,12 @@ class Fluent::JabberOutput < Fluent::Output
       filter = $2
       case filter
       when nil
-        # nothing
+        data = escape_xhtml(data) if need_escape
       when 'br'
-        data = data.gsub(/\n/, '<br />')
+        data = escape_xhtml(data).gsub(/\n/, '<br />')
       else
         raise "Unknown filter: #{filter}"
       end
-      data = escape_xhtml(data) if need_escape
       data
     }
   end
