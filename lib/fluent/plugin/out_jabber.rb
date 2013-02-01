@@ -121,7 +121,7 @@ class Fluent::JabberOutput < Fluent::Output
     # This suggested method not works for me:
     #   REXML::Text.new( message, false, nil, true, nil, %r/.^/ )
     # So I try alternative.
-    REXML::Document.new(xhtml_text).children.each do|c|
+    REXML::Document.new("<div>#{xhtml_text}</div>").children.each do|c|
       b.add c
     end
 
