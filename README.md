@@ -68,7 +68,7 @@ If 'body' field not set, the plugin raises error.
 
 ## Changes
 
-### 0.2.0(unreleased)
+### 0.2.0
 
 * Add xhtml_format option
 
