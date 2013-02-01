@@ -135,6 +135,14 @@ describe Fluent::JabberOutput do
     end
   end
 
+  context 'filter' do
+    context '|br' do
+      it 'should convert CR to <br />' do
+        subject.format_with('${a|br}', 0, {'a'=>"a\nb"}, false).should == "a<br />b"
+      end
+    end
+  end
+
   context 'xhtml_format' do
     let(:xhtml_format) { '<p>${message}</p>' }
     let(:format) { '${message}' }

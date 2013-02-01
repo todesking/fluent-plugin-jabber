@@ -90,8 +90,17 @@ class Fluent::JabberOutput < Fluent::Output
 
   def format_with(format_string, time, record, need_escape)
     return nil unless format_string
-    format_string.gsub(/\\n/, "\n").gsub(/\\{sharp}/,'#').gsub(/\${([\w.]+)}/) {
+    format_string.gsub(/\\n/, "\n").gsub(/\\{sharp}/,'#').gsub(/\${([\w.]+)(?:\|([\w]+))?}/) {
       data = $1.split('.').inject(record) {|r,k| (r||{})[k]}
+      filter = $2
+      case filter
+      when nil
+        # nothing
+      when 'br'
+        data = data.gsub(/\n/, '<br />')
+      else
+        raise "Unknown filter: #{filter}"
+      end
       data = escape_xhtml(data) if need_escape
       data
     }
