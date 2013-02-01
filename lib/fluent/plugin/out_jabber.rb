@@ -110,7 +110,7 @@ class Fluent::JabberOutput < Fluent::Output
   end
 
   def send_message(plain_text, xhtml_text)
-    message = Jabber::Message.new(@room, plain_text)
+    message = Jabber::Message.new(@room, plain_text.force_encoding(Encoding::UTF_8))
     set_xhtml_message(message, xhtml_text) if xhtml_text
 
     @muc_client.send message
