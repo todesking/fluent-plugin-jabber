@@ -52,12 +52,6 @@ See source for details.
       jabber_warnings_log true
     </match>
 
-### Message format
-
-    {"body": "String for output"}
-
-If 'body' field not set, the plugin raises error.
-
 ## Contributing
 
 1. Fork it
