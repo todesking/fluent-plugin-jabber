@@ -144,6 +144,12 @@ describe Fluent::JabberOutput do
         subject.format_with('${a|br}', 0, {'a'=>"<>\n"}, false).should == "&lt;&gt;<br />"
       end
     end
+    context '|u' do
+      it 'should escape params for uri_component' do
+        subject.format_with('${a|uri_component}', 0, {'a'=>'hoge'}, false).should == "hoge"
+        subject.format_with('${a|uri_component}', 0, {'a'=>'/?a=b+c&'}, false).should == "/%3Fa%3Db%2Bc%26"
+      end
+    end
   end
 
   context 'xhtml_format' do

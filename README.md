@@ -62,6 +62,10 @@ See source for details.
 
 ## Changes
 
+### 0.4.0
+
+* Add filter: uri_component
+
 ### 0.3.0
 
 * Add filter: br

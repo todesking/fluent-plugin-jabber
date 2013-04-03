@@ -5,6 +5,8 @@ require 'fluent/output'
 require 'xmpp4r'
 require 'xmpp4r/muc'
 
+require 'uri'
+
 require 'pit'
 
 # Deal with Fluentd's Encoding.default_internal = 'ASCII_8BIT'.
@@ -98,6 +100,9 @@ class Fluent::JabberOutput < Fluent::Output
         data = escape_xhtml(data) if need_escape
       when 'br'
         data = escape_xhtml(data).gsub(/\n/, '<br />')
+      when 'uri_component'
+        data = URI.escape(data, Regexp.union(URI::UNSAFE, /[?&=+]/))
+        data = escape_xhtml(data) if need_escape
       else
         raise "Unknown filter: #{filter}"
       end
