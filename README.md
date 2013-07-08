@@ -62,6 +62,10 @@ See source for details.
 
 ## Changes
 
+### 0.5.0(unreleased)
+
+* support ping(XEP-0199)
+
 ### 0.4.0
 
 * Add filter: uri_component

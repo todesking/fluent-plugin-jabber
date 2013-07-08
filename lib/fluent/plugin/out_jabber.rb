@@ -65,6 +65,18 @@ class Fluent::JabberOutput < Fluent::Output
     @client.connect
     @client.auth(@password)
 
+    # response to ping(see XEP-0199)
+    @client.add_iq_callback do |iq_received|
+      if iq_received.type == :get && iq_received.first_element('ping')
+        iq = Jabber::Iq.new(:result, @client.jid.node)
+        iq.id = iq_received.id
+        iq.from = iq_received.to
+        iq.to = iq_received.from
+        iq.type = :result
+        @client.send(iq)
+      end
+    end
+
     @muc_client = Jabber::MUC::MUCClient.new(@client)
     @muc_client.join(@room)
 
