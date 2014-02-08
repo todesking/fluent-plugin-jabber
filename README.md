@@ -1,4 +1,4 @@
-# fluent-plugin-jabber
+# fluent-plugin-jabber, a plugin for [Fluentd](http://fluentd.org)
 
 Fluentd output plugin for XMPP(jabber) protocol.
 
